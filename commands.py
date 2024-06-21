@@ -1,5 +1,7 @@
 from aiohttp import ClientSession
 
+url = 'https://api.twitter.com/1.1/statuses/update.json'
+
 async def update(message):
     if message.attachments:
                 img = message.attachments[0]
@@ -16,9 +18,9 @@ async def update(message):
                 else:
                     await message.channel.send('incorrect file type, please use a jpg, jpeg, or png file')
 async def handle_tweet(message, twit_client):
-    tweet_content = message.content[len('!tweet'):].strip()
+    tweet_content = message.content[len('!tweet'):]
     try:
-        response = twit_client.create_tweet(text="hi!")
+        twit_client.create_tweet(text=tweet_content)
         print(f"Tweet Successful: {tweet_content}")
     except Exception as e:
         print(f"Error Occured: {e}")
