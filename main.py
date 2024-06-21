@@ -35,7 +35,7 @@ def run_discord_bot(twit_client):
             await message.channel.send("use !updateserver with an attached .jpg, .png, or .jpeg to have me update the server icon!\n!safetyprotocol is a fun command to mess with friends\n!tweet can be used to post a tweet to @disgustingloner")
         #text reply
         elif '!tweet' in user_message:
-            await handle_tweet(message, twit_client)
+            await handle_tweet(message, twit_client, api)
     client.run(disc_tok)
 
 def grab_keys():
@@ -48,9 +48,17 @@ def grab_keys():
         disc_tok = json_obj["discord_token"]
         bear_token = json_obj["bearer_token"]
         return api_key, api_secret, access_key, access_secret, disc_tok, bear_token
-
-if __name__ == '__main__':  
+    
+def init_auth():
     api_key, api_secret, access_key, access_secret, disc_tok, bear_token = grab_keys()
     twit_client = tweepy.Client(bearer_token=bear_token, consumer_key=api_key, consumer_secret=api_secret, 
                             access_token=access_key, access_token_secret=access_secret)
+    auth = tweepy.OAuthHandler(consumer_key=api_key, consumer_secret=api_secret)
+    auth.set_access_token(access_key, access_secret)
+    api = tweepy.API(auth, wait_on_rate_limit=True)
+
+    return twit_client, api, disc_tok
+
+if __name__ == '__main__':  
+    twit_client, api, disc_tok = init_auth()
     run_discord_bot(twit_client)
