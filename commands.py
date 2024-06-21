@@ -21,6 +21,7 @@ async def handle_tweet(message, twit_client):
     tweet_content = message.content[len('!tweet'):]
     try:
         twit_client.create_tweet(text=tweet_content)
+        await message.channel.send('Tweet posted!')
         print(f"Tweet Successful: {tweet_content}")
     except Exception as e:
         print(f"Error Occured: {e}")
