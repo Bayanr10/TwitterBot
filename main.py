@@ -32,7 +32,7 @@ def run_discord_bot(twit_client):
         if '!updateserver' in user_message:
             await update(message)
         elif '!help' in user_message:
-            await message.channel.send("use !updateserver with an attached .jpg, .png, or .jpeg to have me update the server icon!\n!safetyprotocol is a fun command to mess with friends")
+            await message.channel.send("use !updateserver with an attached .jpg, .png, or .jpeg to have me update the server icon!\n!safetyprotocol is a fun command to mess with friends\n!tweet can be used to post a tweet to @disgustingloner")
         #text reply
         elif '!tweet' in user_message:
             await handle_tweet(message, twit_client)
