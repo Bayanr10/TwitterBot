@@ -37,12 +37,16 @@ async def count_reactions(message):
 async def monitor_reacts(message):
     yes, no = await count_reactions(message)
     limit = 0
-    while ((yes < 2 and no < 2) and limit != 20):
-        print(3 * limit)
+    while (limit != 20):
+        if (limit == 19 and yes >= no):
+            return 1
+        elif (yes > 2):
+            return 1
+        print(3 * limit + " seconds")
         time.sleep(3)
         yes, no = await count_reactions(message)
         limit += 1
-        if ((yes > no) or ((yes == 1 and no == 1) and limit == 20)):
+        if ((yes == 1 and no == 1) and limit == 20):
             return 1
     return 0
 
