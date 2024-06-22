@@ -30,16 +30,15 @@ async def count_reactions(message):
     for reaction in message.reactions:
         if (reaction.emoji == '✅'):
             yes = reaction.count
-            print(f"count is {reaction.count}")
         elif (reaction.emoji == '❌'):
             no = reaction.count
-    print(f"yes = {yes}\nno = {no}")
     return yes, no
 
 async def monitor_reacts(message):
     yes, no = await count_reactions(message)
     limit = 0
     while ((yes < 2 and no < 2) and limit != 20):
+        print(3 * limit)
         time.sleep(3)
         yes, no = await count_reactions(message)
         limit += 1
