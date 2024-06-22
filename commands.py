@@ -34,6 +34,17 @@ def count_reactions(message):
             no = reaction.count
     return yes, no
 
+def monitor_reacts(message):
+    yes, no = count_reactions(message)
+    limit = 0
+    while ((yes < 2 and no < 2) and limit != 20):
+        asyncio.sleep(5)
+        yes, no = count_reactions(message)
+        limit += 1
+        if (yes < no):
+            return 1
+    return 0
+
 
 async def handle_tweet(message, twit_client, api):
     tweet_content = message.content[len('!tweet'):]
@@ -50,34 +61,22 @@ async def handle_tweet(message, twit_client, api):
                     media_id = media.media_id_string
                     yes, no = count_reactions(message)
                     limit = 0
-                    while ((yes < 2 and no < 2) and limit != 20):
-                        asyncio.sleep(5)
-                        yes, no = count_reactions(message)
-                        ++limit
-                    if (yes < no):
-                        await message.channel.send('tweet not posted')
-                    else:
+                    if (monitor_reacts(message) == 1):
                         #twit_client.create_tweet(text=tweet_content, media_ids=[media_id])
                         #await message.channel.send('Tweet posted!')
                         os.remove(file_path)
                         await message.channel.send('tweet posted')
+                        print(f"Tweet Successful: {tweet_content}")
+                    else:
+                        print("tweet not posted")
                     
-                    print(f"Tweet Successful: {tweet_content}")
         else:
-            yes, no = count_reactions(message)
-            limit = 0
-            while ((yes < 2 and no < 2) and limit != 20):
-                asyncio.sleep(5)
-                yes, no = count_reactions(message)
-                limit += 1
-                print(f"limit is {limit}")
-                print(f"yes is {yes}\nno is {no}")
-            if (yes < no):
-                await message.channel.send('tweet not posted')
-            else:
+            if (monitor_reacts(message) == 1):
                 #twit_client.create_tweet(text=tweet_content)
                 print(f"Tweet Successful: {tweet_content}")
-                await message.channel.send('tweet posted')    
+                await message.channel.send('tweet posted')
+            else:
+                await message.channel.send('tweet not posted')    
 
 
     except Exception as e:
