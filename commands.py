@@ -61,18 +61,17 @@ async def handle_tweet(message, twit_client, api):
                     media = api.media_upload(file_path)
                     media_id = media.media_id_string
                     if (await monitor_reacts(message) == 1):
-                        #twit_client.create_tweet(text=tweet_content, media_ids=[media_id])
-                        #await message.channel.send('Tweet posted!')
-                        os.remove(file_path)
+                        twit_client.create_tweet(text=tweet_content, media_ids=[media_id])
                         await message.channel.send('tweet posted')
                         print(f"Tweet Successful: {tweet_content}")
                     else:
+                        await message.channel.send('tweet not posted') 
                         print("tweet not posted")
-                    
+            os.remove(file_path)
         else:
             if (await monitor_reacts(message) == 1):
-                #twit_client.create_tweet(text=tweet_content)
-                print(f"Tweet Successful: {tweet_content}")
+                twit_client.create_tweet(text=tweet_content)
+                print(f"Tweet Successful -> {tweet_content}")
                 await message.channel.send('tweet posted')
             else:
                 await message.channel.send('tweet not posted')    
