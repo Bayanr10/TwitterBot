@@ -42,7 +42,7 @@ async def monitor_reacts(message):
         time.sleep(3)
         yes, no = await count_reactions(message)
         limit += 1
-        if ((yes > no) or (yes == 0 and no == 1)):
+        if ((yes > no) or ((yes == 1 and no == 1) and limit == 20)):
             return 1
     return 0
 
