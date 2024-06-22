@@ -42,7 +42,7 @@ async def monitor_reacts(message):
             return 1
         elif (yes > 2):
             return 1
-        print(3 * limit + " seconds")
+        print(f"{3 * limit} seconds")
         time.sleep(3)
         yes, no = await count_reactions(message)
         limit += 1
