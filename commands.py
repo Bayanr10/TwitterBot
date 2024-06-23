@@ -83,4 +83,4 @@ async def handle_tweet(message, twit_client, api):
 
     except Exception as e:
         await message.channel.send(f'Error: {e}')
-        print(f"Error Occured: {e}")
+        print(f"Error: {e}")
