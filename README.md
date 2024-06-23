@@ -5,4 +5,4 @@ Commands:
 !help
     quick list of commands and their functions
 !tweet {tweet substance (can also include media)}
-    allows the user to submit a tweet to the twitter account @DisgustingLoner
+    allows the user to submit a tweet to the twitter account @DisgustingLoner (https://x.com/DisgustingLoner)
