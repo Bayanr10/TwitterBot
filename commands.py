@@ -17,7 +17,7 @@ async def update(message):
                         await message.guild.edit(icon=img_data)
                         await message.channel.send('server pic updated!')
                 else:
-                    await message.channel.send('incorrect file type, please use a jpg, jpeg, or png file')
+                    await message.channel.send('incorrect file type, please use a jpg, jpeg, gif, or png file')
 
 async def add_react(message):
     await message.add_reaction('✅')
