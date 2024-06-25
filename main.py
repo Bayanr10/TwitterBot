@@ -4,6 +4,7 @@ from commands import handle_tweet, update
 #import requests
 #import time
 import json
+from profanity_check import predict
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -35,7 +36,10 @@ def run_discord_bot(twit_client):
             await message.channel.send("use !updateserver with an attached .jpg, .png, or .jpeg to have me update the server icon!\n!safetyprotocol is a fun command to mess with friends\n!tweet can be used to post a tweet to @disgustingloner")
         #text reply
         elif user_message.lower().startswith('!tweet'):
-            await handle_tweet(message, twit_client, api)
+            if (predict(message) == 0):
+                await handle_tweet(message, twit_client, api)
+            else:
+                print("sorry, some of those words might've been offensive.")
     client.run(disc_tok)
 
 def grab_keys():
