@@ -33,6 +33,8 @@ def run_discord_bot(twit_client):
             await update(message)
         elif user_message.lower().startswith('!help'):
             await message.channel.send("use !updateserver with an attached .jpg, .png, or .jpeg to have me update the server icon!\n!tweet can be used to post a tweet to @disgustingloner")
+        elif user_message.lower().startswith('!twitter'):
+            await message.channel.send("You can find all posted tweets at https://x.com/DisgustingLoner")    
         #text reply
         elif user_message.lower().startswith('!tweet'):
             await handle_tweet(message, twit_client, api)
