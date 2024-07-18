@@ -40,14 +40,18 @@ async def monitor_reacts(message):
     while (limit != 20):
         if (limit == 19 and yes >= no):
             return 1
-        elif (yes > 2):
+        elif (yes > 3 and yes > no):
             return 1
+        elif (no > 3 and no > yes):
+            return 1
+        
         print(f"{3 * limit} seconds")
         time.sleep(3)
         yes, no = await count_reactions(message)
         limit += 1
-        if ((yes == 1 and no == 1) and limit == 20):
-            return 1
+
+    if ((yes == 1 and no == 1) or yes >= no):
+        return 1
     return 0
 
 
@@ -65,18 +69,24 @@ async def handle_tweet(message, twit_client, api):
                     media = api.media_upload(file_path)
                     media_id = media.media_id_string
                     if (await monitor_reacts(message) == 1):
-                        twit_client.create_tweet(text=tweet_content, media_ids=[media_id])
-                        await message.channel.send('tweet posted')
-                        print(f"Tweet Successful: {tweet_content}")
+                        response = twit_client.create_tweet(text=tweet_content, media_ids=[media_id])
+                        data_dict = response[0]
+                        tweet_id = data_dict["id"] 
+                        tweet_url = f"https://twitter.com/user_name/status/{tweet_id}" 
+                        await message.channel.send(f'Tweet posted: {tweet_url}')
+                        print(f"Tweet Successful -> {tweet_content}")
                     else:
                         await message.channel.send('tweet not posted') 
                         print("tweet not posted")
             os.remove(file_path)
         else:
             if (await monitor_reacts(message) == 1):
-                twit_client.create_tweet(text=tweet_content)
+                response = twit_client.create_tweet(text=tweet_content)
+                data_dict = response[0]
+                tweet_id = data_dict["id"] 
+                tweet_url = f"https://twitter.com/user_name/status/{tweet_id}" 
+                await message.channel.send(f'Tweet posted: {tweet_url}')
                 print(f"Tweet Successful -> {tweet_content}")
-                await message.channel.send('tweet posted')
             else:
                 await message.channel.send('tweet not posted')    
 
