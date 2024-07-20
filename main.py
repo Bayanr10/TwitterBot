@@ -4,11 +4,8 @@ from commands import handle_tweet, update
 #import requests
 #import time
 import json
-
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
-
-
 
 def run_discord_bot(twit_client):
 
