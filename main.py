@@ -20,6 +20,45 @@ def run_discord_bot(twit_client):
         username = str(message.author)
         user_message = str(message.content)
         channel = str(message.channel)
+
+        # Anonymous DM
+        if isinstance(message.channel, discord.DMChannel):
+            if user_message.startswith('!send'):
+                args = user_message.split(' ')
+        
+            # Length Check
+            if len(args) < 3:
+                await message.channel.send("**Usage:** `!send {user_id} {message}`")
+                return
+
+            target_user_id = args[1]
+            msg_content = ' '.join(args[2:])
+
+            # Valid UserID check
+            if not target_user_id.isdigit():
+                await message.channel.send("❌ User ID must be used, it can be found on the bottom of a user once you right click them.")
+                return
+
+            try:
+                # Grab UserID
+                target_user = await client.fetch_user(int(target_user_id))
+            
+                # If tried to send to a bot
+                if target_user.bot:
+                    await message.channel.send("❌ You can't message bots.")
+                    return
+            
+                # Send the message
+                await target_user.send(f"Anonymous said: '{msg_content}'")
+                await message.channel.send("✅ Message Sent!")
+        
+            except discord.NotFound:
+                await message.channel.send("❌ User not found. Check the ID and try again")
+            except discord.Forbidden:
+                await message.channel.send("❌ Message blocked. User has DMs disabled or blocked the bot")
+            except Exception as e:
+                await message.channel.send(f"❌ Error: {str(e)}")
+        
         
         def check(msg):
             return msg.author == message.author and msg.channel == message.channel
