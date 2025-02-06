@@ -43,7 +43,7 @@ async def monitor_reacts(message):
         elif (yes > 3 and yes > no):
             return 1
         elif (no > 3 and no > yes):
-            return 1
+            return 0
         
         print(f"{3 * limit} seconds")
         time.sleep(3)
