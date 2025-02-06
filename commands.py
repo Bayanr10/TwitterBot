@@ -73,7 +73,7 @@ async def handle_tweet(message, twit_client, api):
                         data_dict = response[0]
                         tweet_id = data_dict["id"] 
                         tweet_url = f"https://twitter.com/user_name/status/{tweet_id}" 
-                        await message.channel.send(f'Tweet posted: {tweet_url}')
+                        await message.channel.send(f'✅ Tweet posted: {tweet_url}')
                         print(f"Tweet Successful -> {tweet_content}")
                     else:
                         await message.channel.send('tweet not posted') 
@@ -85,10 +85,10 @@ async def handle_tweet(message, twit_client, api):
                 data_dict = response[0]
                 tweet_id = data_dict["id"] 
                 tweet_url = f"https://twitter.com/user_name/status/{tweet_id}" 
-                await message.channel.send(f'Tweet posted: {tweet_url}')
+                await message.channel.send(f'✅ Tweet posted: {tweet_url}')
                 print(f"Tweet Successful -> {tweet_content}")
             else:
-                await message.channel.send('tweet not posted')    
+                await message.channel.send('❌ tweet not posted')    
 
 
     except Exception as e:
