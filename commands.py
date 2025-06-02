@@ -37,7 +37,7 @@ async def count_reactions(message):
 async def monitor_reacts(message):
     yes, no = await count_reactions(message)
     limit = 0
-    while (limit != 20):
+    while (limit != 10):
         if (limit == 19 and yes >= no):
             return 1
         elif (yes > 3 and yes > no):
@@ -58,6 +58,16 @@ async def monitor_reacts(message):
 async def handle_tweet(message, twit_client, api):
     tweet_content = message.content[len('!tweet'):]
     try:
+        if (len(tweet_content) > 280):
+            tweet_content = tweet_content[0:280]
+            poll = await message.channel.send(f'Your tweet exceeds the character limit (280), Would you like to tweet\n\n"{tweet_content}"')
+            await add_react(poll)
+            time.sleep(10)
+            yes, no = await count_reactions(poll)
+        if (yes > no):
+            await message.channel.send('Success! Please vote on original poll')
+        elif (no >= yes):
+            raise Exception("Tweet request cancelled")
         await add_react(message)
         if message.attachments:
             img = message.attachments[0]
