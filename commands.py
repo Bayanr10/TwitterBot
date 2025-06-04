@@ -64,10 +64,10 @@ async def handle_tweet(message, twit_client, api):
             await add_react(poll)
             time.sleep(10)
             yes, no = await count_reactions(poll)
-        if (yes > no):
-            await message.channel.send('Success! Please vote on original poll')
-        elif (no >= yes):
-            raise Exception("Tweet request cancelled")
+            if (yes > no):
+                await message.channel.send('Success! Please vote on original poll')
+            elif (no >= yes):
+                raise Exception("Tweet request cancelled")
         await add_react(message)
         if message.attachments:
             img = message.attachments[0]
