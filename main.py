@@ -28,6 +28,8 @@ def run_discord_bot(twit_client):
         
             # Length Check
             if len(args) < 3:
+                if (args[1] == 'help'):
+                    await message.channel.send("Bayan: 228592065456504832\nDavid: 206105776991895553\nAlejandro: 215617146514833408\nNafis: 299634306039414815\n Kolin: 263807907135619077\nJohn Womack: 1167176004922511525\nBilly: 209459770946486273\nJoe: 317017539249176577\nAdam: 334953362405588993\nMichael: 493907340425429022")
                 await message.channel.send("**Usage:** `!send {user_id} {message}`")
                 return
 
