@@ -21,59 +21,62 @@ def run_discord_bot(twit_client):
         user_message = str(message.content)
         channel = str(message.channel)
 
-        # Anonymous DM
+        #Anonymous DM
         if isinstance(message.channel, discord.DMChannel):
             if user_message.startswith('!send'):
                 args = user_message.split(' ')
-        
-            # Length Check
-            if len(args) < 3:
-                if (args[1] == 'help'):
-                    await message.channel.send("Bayan: 228592065456504832\nDavid: 206105776991895553\nAlejandro: 215617146514833408\nNafis: 299634306039414815\n Kolin: 263807907135619077\nJohn Womack: 1167176004922511525\nBilly: 209459770946486273\nJoe: 317017539249176577\nAdam: 334953362405588993\nMichael: 493907340425429022")
-                await message.channel.send("**Usage:** `!send {user_id} {message}`")
-                return
-
-            target_user_id = args[1]
-            msg_content = ' '.join(args[2:])
-
-            # Valid UserID check
-            if not target_user_id.isdigit():
-                await message.channel.send("❌ User ID must be used, it can be found on the bottom of a user once you right click them.")
-                return
-
-            try:
-                # Grab UserID
-                target_user = await client.fetch_user(int(target_user_id))
-            
-                # If tried to send to a bot
-                if target_user.bot:
-                    await message.channel.send("❌ You can't message bots.")
+                if len(args) < 2 or (len(args) < 3 and not message.attachments):
+                    #If "help"
+                    if len(args) > 1 and args[1] == 'help':
+                        await message.channel.send("Bayan: 228592065456504832\nDavid: 206105776991895553\nAlejandro: 215617146514833408\nNafis: 299634306039414815\n Kolin: 263807907135619077\nJohn Womack: 1167176004922511525\nBilly: 209459770946486273\nJoe: 317017539249176577\nAdam: 334953362405588993\nMichael: 493907340425429022")
+                    else:
+                        await message.channel.send("**Usage:** `!send {user_id} {message}` (You can also attach an image)")
                     return
+
+                target_user_id = args[1]
+                msg_content = ' '.join(args[2:]) if len(args) > 2 else ""
+
+                #Valid UserID?
+                if not target_user_id.isdigit():
+                    await message.channel.send("❌ User ID must be used, it can be found on the bottom of a user once you right click them.")
+                    return
+
+                try:
+                    #Get UserID
+                    target_user = await client.fetch_user(int(target_user_id))
+
+                    #Prep content
+                    send_content = f"Anonymous said: '{msg_content}'" if msg_content else "Anonymous sent you this:"
+                    file_to_send = None
+                    if message.attachments:
+                        #Get only the first attachment
+                        attachment = message.attachments[0]
+                        file_to_send = await attachment.to_file()
+
+                    #Send message
+                    await target_user.send(content=send_content, file=file_to_send)
+                    await message.channel.send("✅ Message Sent!")
             
-                # Send the message
-                await target_user.send(f"Anonymous said: '{msg_content}'")
-                await message.channel.send("✅ Message Sent!")
-        
-            except discord.NotFound:
-                await message.channel.send("❌ User not found. Check the ID and try again")
-            except discord.Forbidden:
-                await message.channel.send("❌ Message blocked. User has DMs disabled or blocked the bot")
-            except Exception as e:
-                await message.channel.send(f"❌ Error: {str(e)}")
+                except discord.NotFound:
+                    await message.channel.send("❌ User not found. Check the ID and try again")
+                except discord.Forbidden:
+                    await message.channel.send("❌ Message blocked. User has DMs disabled or blocked the bot")
+                except Exception as e:
+                    await message.channel.send(f"❌ Error: {str(e)}")
         
         
         def check(msg):
             return msg.author == message.author and msg.channel == message.channel
 
         print(f"{username} said: '{user_message}' ({channel})")
-        #updating server icon
+        #Updating server icon
         if user_message.lower().startswith('!updateserver'):
             await update(message)
         elif user_message.lower().startswith('!help'):
             await message.channel.send("use !updateserver with an attached .jpg, .png, or .jpeg to have me update the server icon!\n!tweet can be used to post a tweet to @disgustingloner")
         elif user_message.lower().startswith('!twitter'):
             await message.channel.send("You can find all posted tweets at https://x.com/DisgustingLoner")    
-        #text reply
+        #Text reply
         elif user_message.lower().startswith('!tweet'):
             await handle_tweet(message, twit_client, api)
     client.run(disc_tok)
