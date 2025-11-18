@@ -1,23 +1,23 @@
 from aiohttp import ClientSession
 import requests
-import os
-import time
+import asyncio 
+import io
 
 async def update(message):
     if message.attachments:
-                img = message.attachments[0]
-                if img.filename.endswith(('.jpg', '.png', '.jpeg', '.gif')):
-                    img_url = img.url
-                    async with ClientSession() as session:
-                        await message.channel.send('updating server profile...')
-                        async with session.get(img_url) as response:
-                            if response.status == 200:
-                                img_data = await response.read()
-                            
-                        await message.guild.edit(icon=img_data)
-                        await message.channel.send('server pic updated!')
-                else:
-                    await message.channel.send('incorrect file type, please use a jpg, jpeg, gif, or png file')
+        img = message.attachments[0]
+        if img.filename.endswith(('.jpg', '.png', '.jpeg', '.gif')):
+            img_url = img.url
+            async with ClientSession() as session:
+                await message.channel.send('updating server profile...')
+                async with session.get(img_url) as response:
+                    if response.status == 200:
+                        img_data = await response.read()
+                    
+                await message.guild.edit(icon=img_data)
+                await message.channel.send('server pic updated!')
+        else:
+            await message.channel.send('incorrect file type, please use a jpg, jpeg, gif, or png file')
 
 async def add_react(message):
     await message.add_reaction('✅')
@@ -28,9 +28,9 @@ async def count_reactions(message):
     no = 0
     message = await message.channel.fetch_message(message.id)
     for reaction in message.reactions:
-        if (reaction.emoji == '✅'):
+        if (str(reaction.emoji) == '✅'):
             yes = reaction.count
-        elif (reaction.emoji == '❌'):
+        elif (str(reaction.emoji) == '❌'):
             no = reaction.count
     return yes, no
 
@@ -46,7 +46,7 @@ async def monitor_reacts(message):
             return 0
         
         print(f"{3 * limit} seconds")
-        time.sleep(3)
+        await asyncio.sleep(3) 
         yes, no = await count_reactions(message)
         limit += 1
 
@@ -61,45 +61,47 @@ async def handle_tweet(message, twit_client, api):
         if (len(tweet_content) > 280):
             tweet_content = tweet_content[0:280]
             poll = await message.channel.send(f'Your tweet exceeds the character limit (280), Would you like to tweet\n\n"{tweet_content}"')
-            await add_react(poll)
-            time.sleep(10)
+            await add_react(poll)        
+            await asyncio.sleep(10)
             yes, no = await count_reactions(poll)
             if (yes > no):
                 await message.channel.send('Success! Please vote on original poll')
             elif (no >= yes):
                 raise Exception("Tweet request cancelled")
+        
         await add_react(message)
+        
         if message.attachments:
             img = message.attachments[0]
             if img.filename.endswith(('.jpg', '.png', '.jpeg', '.gif')):
+                
                 response = requests.get(img.url)
-                file_path = f'tmp_{img.filename}'
-                with open(file_path, 'wb') as f:
-                    f.write(response.content)
-                    media = api.media_upload(file_path)
-                    media_id = media.media_id_string
-                    if (await monitor_reacts(message) == 1):
-                        response = twit_client.create_tweet(text=tweet_content, media_ids=[media_id])
-                        data_dict = response[0]
-                        tweet_id = data_dict["id"] 
-                        tweet_url = f"https://twitter.com/user_name/status/{tweet_id}" 
-                        await message.channel.send(f'✅ Tweet posted: {tweet_url}')
-                        print(f"Tweet Successful -> {tweet_content}")
-                    else:
-                        await message.channel.send('tweet not posted') 
-                        print("tweet not posted")
-            os.remove(file_path)
+    
+                file_obj = io.BytesIO(response.content)
+                
+                media = api.media_upload(filename=img.filename, file=file_obj)
+                media_id = media.media_id_string
+                
+                if (await monitor_reacts(message) == 1):
+                    response = twit_client.create_tweet(text=tweet_content, media_ids=[media_id])
+                    data_dict = response[0]
+                    tweet_id = data_dict["id"] 
+                    tweet_url = f"https://twitter.com/user_name/status/{tweet_id}" 
+                    await message.channel.send(f'Tweet posted: {tweet_url}')
+                    print(f"Tweet Successful -> {tweet_content}")
+                else:
+                    await message.channel.send('Tweet not posted') 
+                    print("tweet not posted")
         else:
             if (await monitor_reacts(message) == 1):
                 response = twit_client.create_tweet(text=tweet_content)
                 data_dict = response[0]
                 tweet_id = data_dict["id"] 
                 tweet_url = f"https://twitter.com/user_name/status/{tweet_id}" 
-                await message.channel.send(f'✅ Tweet posted: {tweet_url}')
+                await message.channel.send(f'Tweet posted: {tweet_url}')
                 print(f"Tweet Successful -> {tweet_content}")
             else:
-                await message.channel.send('❌ tweet not posted')    
-
+                await message.channel.send('Tweet not posted')    
 
     except Exception as e:
         await message.channel.send(f'Error: {e}')

@@ -1,11 +1,19 @@
 import discord
 import tweepy
 from commands import handle_tweet, update
-#import requests
-#import time
 import json
+import os
+
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
+
+#get the users from user.json
+def load_users():
+    try:
+        with open("users.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
 
 def run_discord_bot(twit_client):
 
@@ -26,9 +34,15 @@ def run_discord_bot(twit_client):
             if user_message.startswith('!send'):
                 args = user_message.split(' ')
                 if len(args) < 2 or (len(args) < 3 and not message.attachments):
+
                     #If "help"
                     if len(args) > 1 and args[1] == 'help':
-                        await message.channel.send("Bayan: 228592065456504832\nDavid: 206105776991895553\nAlejandro: 215617146514833408\nNafis: 299634306039414815\n Kolin: 263807907135619077\nJohn Womack: 1167176004922511525\nBilly: 209459770946486273\nJoe: 317017539249176577\nAdam: 334953362405588993\nMichael: 493907340425429022")
+                        user_map = load_users()
+                        if user_map:
+                            help_msg = "\n".join([f"{name}: {uid}" for name, uid in user_map.items()])
+                            await message.channel.send(f"**Available Users:**\n{help_msg}")
+                        else:
+                            await message.channel.send("No user list found.")
                     else:
                         await message.channel.send("**Usage:** `!send {user_id} {message}` (You can also attach an image)")
                     return
@@ -38,7 +52,7 @@ def run_discord_bot(twit_client):
 
                 #Valid UserID?
                 if not target_user_id.isdigit():
-                    await message.channel.send("❌ User ID must be used, it can be found on the bottom of a user once you right click them.")
+                    await message.channel.send("❌ User ID must be used. You can find it by right-clicking a user (with Developer Mode on).")
                     return
 
                 try:
@@ -55,14 +69,14 @@ def run_discord_bot(twit_client):
 
                     #Send message
                     await target_user.send(content=send_content, file=file_to_send)
-                    await message.channel.send("✅ Message Sent!")
+                    await message.channel.send("Message Sent!")
             
                 except discord.NotFound:
-                    await message.channel.send("❌ User not found. Check the ID and try again")
+                    await message.channel.send("User not found. Check the ID and try again")
                 except discord.Forbidden:
-                    await message.channel.send("❌ Message blocked. User has DMs disabled or blocked the bot")
+                    await message.channel.send("Message blocked. User has DMs disabled or blocked the bot")
                 except Exception as e:
-                    await message.channel.send(f"❌ Error: {str(e)}")
+                    await message.channel.send(f"Error: {str(e)}")
         
         
         def check(msg):
